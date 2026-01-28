@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Info } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getMediaDetails } from '../api/tmdb';
 import SEO from '../components/common/SEO';
@@ -43,7 +43,7 @@ const Player = () => {
     } : undefined;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden">
+        <div className="group fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden">
             {media && (
                 <SEO 
                     title={media.title || (media as any).name}
@@ -54,8 +54,8 @@ const Player = () => {
                 />
             )}
             {/* Top Toolbar - Overlay */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent z-50 flex items-center justify-between opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <div className="flex items-center gap-4">
+            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent z-50 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <div className="flex items-center gap-4 pointer-events-auto">
                     <button 
                         onClick={() => navigate(-1)}
                         className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors text-white"
@@ -74,11 +74,7 @@ const Player = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <button className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors text-white">
-                        <Info className="w-5 h-5" />
-                    </button>
-                </div>
+
             </div>
 
             {/* Player Container */}
@@ -99,12 +95,7 @@ const Player = () => {
                 />
             </div>
             
-            {/* Footer Tip */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 hover:opacity-100 transition-opacity duration-500">
-                <div className="bg-black/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10">
-                    <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest">Move mouse to show controls</p>
-                </div>
-            </div>
+
         </div>
     );
 };

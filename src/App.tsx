@@ -18,6 +18,12 @@ function App() {
         <Route path="my-list" element={<UserListPage mode="watchlist" />} />
         <Route path="collection/:id" element={<CollectionDetails />} />
         
+        {/* SEO Friendly Discovery Routes */}
+        <Route path="movies" element={<Home />} />
+        <Route path="movies/:genre" element={<Home />} />
+        <Route path="tv" element={<Home />} />
+        <Route path="tv/:genre" element={<Home />} />
+
         {/* SEO Friendly Modal Routes - Render Home in background */}
         <Route path="movie/:id" element={<Home />} />
         <Route path="movie/:id/:slug" element={<Home />} />

@@ -15,6 +15,7 @@ import { slugify } from '../utils/slug';
 
 const Home = () => {
   useSearchParams();
+  const [searchParams] = useSearchParams();
   const [activeTrend, setActiveTrend] = useState('Daily Trend');
 
   const navigate = useNavigate();
@@ -29,7 +30,10 @@ const Home = () => {
      const isTv = media.media_type === 'tv' || !!media.first_air_date || !!media.name || !!(media as any).seasons;
      const type = isTv ? 'tv' : 'movie';
      const slug = slugify(media.title || media.name || '');
-     navigate(`/${type}/${media.id}/${slug}`);
+     navigate({
+        pathname: `/${type}/${media.id}/${slug}`,
+        search: searchParams.toString()
+     });
   };
   
    const { user } = useAuth();

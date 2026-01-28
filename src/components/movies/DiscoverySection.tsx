@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { discoverMedia } from '../../api/tmdb';
 import type { MediaItem } from '../../api/tmdb';
@@ -10,8 +10,10 @@ import { slugify } from '../../utils/slug';
 
 const DiscoverySection = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('All');
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useParams();
+  const location = useLocation();
+
   // Mappings
   const languageMap: Record<string, string> = {
     'All Language': '', 'English': 'en', 'Hindi': 'hi', 'Telugu': 'te', 'Tamil': 'ta',
@@ -22,7 +24,16 @@ const DiscoverySection = () => {
   const genreMap: Record<string, string> = {
     'All': '', 'Drama': '18', 'Horror': '27', 'Thriller': '53', 
     'Mystery': '9648', 'Comedy': '35', 'Crime': '80', 'Sci-Fi': '878', 'Romance': '10749', 
-    'Action': '28', 'Fantasy': '14'
+    'Action': '28', 'Fantasy': '14', 'Animation': '16', 'Family': '10751', 'History': '36', 'War': '10752'
+  };
+  
+  // Reverse Map for Slug -> Genre Name (e.g. "sci-fi" -> "Sci-Fi")
+  // We can just iterate keys, but a reliable lookup is good.
+  const getGenreFromSlug = (slug: string): string => {
+      const normalizedSlug = slug.toLowerCase();
+      // Handle special cases manually or fuzzy match
+      const key = Object.keys(genreMap).find(k => slugify(k) === normalizedSlug);
+      return key || 'All';
   };
 
 
@@ -52,26 +63,90 @@ const DiscoverySection = () => {
   const periodKeys = ['All Time', ...years, '2010-2019', '2000-2009', '1990-1999', '1980-1989'];
   const sortKeys = ['Most Hits', 'Highest Rating', 'Recently Released', 'Oldest'];
 
-  const [activeLanguage, setActiveLanguage] = useState('All Language');
-  const [activeGenre, setActiveGenre] = useState('All');
-  const [activeSort, setActiveSort] = useState('Most Hits');
-  const [activePeriod, setActivePeriod] = useState('All Time');
+  // Route Handling Logic
+  // /movies -> tab=Movies
+  // /tv -> tab=TV Series
+  // /movies/action -> tab=Movies, genre=Action
+  const isMoviesPath = location.pathname.startsWith('/movies');
+  const isTvPath = location.pathname.startsWith('/tv');
+  
+  // Determine Initial State from URL Path first, then Query Params
+  let pathTab = searchParams.get('tab') || 'All';
+  if (isMoviesPath) pathTab = 'Movies';
+  else if (isTvPath) pathTab = 'TV Series';
+
+  let pathGenre = searchParams.get('genre') || 'All';
+  if (params.genre) {
+      pathGenre = getGenreFromSlug(params.genre);
+  }
+
+  const activeTab = pathTab;
+  const activeLanguage = searchParams.get('language') || 'All Language';
+  const activeGenre = pathGenre;
+  const activeSort = searchParams.get('sort') || 'Most Hits';
+  const activePeriod = searchParams.get('period') || 'All Time';
 
   const [items, setItems] = useState<MediaItem[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Helper to update filters and reset list
-  const updateFilters = (updates: Partial<{ tab: string, language: string, genre: string, sort: string, period: string }>) => {
+  // Reset items when filters change
+  useEffect(() => {
       setItems([]);
       setPage(1);
       setHasMore(true);
+  }, [activeTab, activeLanguage, activeGenre, activeSort, activePeriod]);
+
+  // Helper to update filters and reset list
+  const updateFilters = (updates: Partial<{ tab: string, language: string, genre: string, sort: string, period: string }>) => {
+      // Logic handled by useEffect now
       
-      if (updates.tab) setActiveTab(updates.tab);
-      if (updates.language) setActiveLanguage(updates.language);
-      if (updates.genre) setActiveGenre(updates.genre);
-      if (updates.sort) setActiveSort(updates.sort);
-      if (updates.period) setActivePeriod(updates.period);
+      const newTab = updates.tab !== undefined ? updates.tab : activeTab;
+      const newGenre = updates.genre !== undefined ? updates.genre : activeGenre;
+      
+      const newParams = new URLSearchParams(searchParams);
+      
+      // Update Params (exclude tab/genre from query if they are in path)
+      const setOrDelete = (key: string, value: string | undefined, defaultValue: string) => {
+          if (value && value !== defaultValue) {
+              newParams.set(key, value);
+          } else if (value === defaultValue) {
+              newParams.delete(key);
+          }
+      };
+
+      if (updates.language !== undefined) setOrDelete('language', updates.language, 'All Language');
+      if (updates.sort !== undefined) setOrDelete('sort', updates.sort, 'Most Hits');
+      if (updates.period !== undefined) setOrDelete('period', updates.period, 'All Time');
+      
+      // Clean up tab/genre from params if we are moving to a path structure
+      newParams.delete('tab');
+      newParams.delete('genre');
+
+      // Construct Path
+      let basePath = '/';
+      if (newTab === 'Movies') basePath = '/movies';
+      else if (newTab === 'TV Series') basePath = '/tv';
+      
+      // Append Genre to path if not 'All' and we have a specific type
+      if (newGenre !== 'All' && basePath !== '/') {
+          basePath += `/${slugify(newGenre)}`;
+      } else if (newGenre !== 'All') {
+          // If tab is All but genre is set, strictly speaking we can't use /movies/genre.
+          // Fallback to query param for 'All' tab
+          newParams.set('genre', newGenre);
+      }
+
+      // Optimization: use setSearchParams if path hasn't changed to avoid full navigation overhead
+      // AND to ensure smoother updates for query params.
+      if (basePath === location.pathname) {
+          setSearchParams(newParams);
+      } else {
+          navigate({
+              pathname: basePath,
+              search: newParams.toString()
+          });
+      }
   };
 
   // Derived Params
@@ -95,14 +170,15 @@ const DiscoverySection = () => {
   useEffect(() => {
      if (data?.results) {
          setItems(prev => {
-             // If page 1, replace (safety check in case we reset)
-             if (page === 1) return data.results;
+             // If data.page is 1, it means this is a fresh fetch (filter change), so replace items.
+             // This avoids race conditions with local 'page' state.
+             if (data.page === 1) return data.results;
              
              // Deduplicate by ID to be safe
              const newItems = data.results.filter(n => !prev.some(p => p.id === n.id));
              return [...prev, ...newItems];
          });
-         setHasMore(page < (data.total_pages || 1));
+         setHasMore(data.page < (data.total_pages || 1));
      }
      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -232,7 +308,10 @@ const DiscoverySection = () => {
                             const isTv = item.media_type === 'tv' || !!item.first_air_date || !!item.name;
                             const type = isTv ? 'tv' : 'movie';
                             const slug = slugify(item.title || item.name || '');
-                            navigate(`/${type}/${item.id}/${slug}`);
+                            navigate({
+                              pathname: `/${type}/${item.id}/${slug}`,
+                              search: searchParams.toString()
+                            });
                           }}/>
                      ))}
                  </div>

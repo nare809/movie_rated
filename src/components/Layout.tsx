@@ -226,8 +226,11 @@ const Layout = () => {
 
   const handleCloseMedia = () => {
      if (pathMatch) {
-         // If we are in deep link mode, close goes to home
-         navigate('/');
+         // If we are in deep link mode, close goes to home but KEEPS filters
+         navigate({
+            pathname: '/',
+            search: searchParams.toString()
+         });
      } else {
          const newParams = new URLSearchParams(searchParams);
          newParams.delete('id');
