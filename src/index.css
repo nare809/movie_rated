@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #1b1b1b;
+  --card: #f3f4f6;
+  --card-foreground: #1b1b1b;
+  --popover: #ffffff;
+  --popover-foreground: #1b1b1b;
+  --primary: #ff1755;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #1b1b1b;
+  --muted: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --accent: #f3f4f6;
+  --accent-foreground: #1b1b1b;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #ff1755;
+}
+
+.dark {
+  --background: #1b1b1b;
+  --foreground: #ffffff;
+  --card: #2c2c2c;
+  --card-foreground: #ffffff;
+  --popover: #1b1b1b;
+  --popover-foreground: #ffffff;
+  --primary: #ff1755;
+  --primary-foreground: #ffffff;
+  --secondary: #2c2c2c;
+  --secondary-foreground: #ffffff;
+  --muted: #374151;
+  --muted-foreground: #9ca3af;
+  --accent: #2c2c2c;
+  --accent-foreground: #ffffff;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+  --border: #374151;
+  --input: #374151;
+  --ring: #ff1755;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Legacy support */
+  --color-dark-900: #1b1b1b;
+  --color-dark-800: #111111;
+  --color-dark-700: #2c2c2c;
+}
+
+body {
+  @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility mask-gradient-right {
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
+
+.bg-pink-500\/20 {
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(
+      in oklab,
+      oklch(0.66 0.24 354.31) 20%,
+      transparent
+    );
+  }
+}
+
+.border-pink-500\/30 {
+  @supports (color: color-mix(in lab, red, red)) {
+    border-color: color-mix(in oklab, oklch(0.66 0.24 354.31) 30%, transparent);
+  }
+}
