@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, type FC } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Download } from 'lucide-react';
 import { getAvatarConfig } from '../../utils/avatars';
+import { usePWAInstall } from '../../hooks/usePWAInstall';
 
 import FaceIcon from '../common/FaceIcon';
 
@@ -11,6 +13,7 @@ interface UserProfileDropdownProps {
 
 const UserProfileDropdown: FC<UserProfileDropdownProps> = ({ onEditProfile }) => {
   const { user, logout } = useAuth();
+  const { isInstallable, installApp, isInstalled } = usePWAInstall();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -118,6 +121,18 @@ const UserProfileDropdown: FC<UserProfileDropdownProps> = ({ onEditProfile }) =>
                             Profile Edit
                         </button>
                     </div>
+
+                    {isInstallable && !isInstalled && (
+                        <div className="border-t border-border mt-2 pt-2">
+                            <button 
+                                onClick={() => { setIsOpen(false); installApp(); }}
+                                className="w-full text-left px-3 py-2 text-primary font-bold text-sm hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2"
+                            >
+                                <Download size={16} />
+                                Install App
+                            </button>
+                        </div>
+                    )}
                     
                     <div className="border-t border-border mt-2 pt-2">
                         <button 

@@ -11,6 +11,7 @@ import UserProfileDropdown from './auth/UserProfileDropdown';
 import ProfileEditModal from './auth/ProfileEditModal';
 import AlertModal from './common/AlertModal';
 import FaceIcon from './common/FaceIcon';
+import InstallPrompt from './common/InstallPrompt';
 import { useAuth } from '../context/AuthContext';
 import { useUserLibrary } from '../hooks/useUserLibrary';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
@@ -170,8 +171,8 @@ const Navbar = ({ onSignInClick, onEditProfile }: { onSignInClick: () => void, o
                    onClick={onSignInClick}
                    className="flex items-center space-x-2 bg-transparent md:bg-secondary hover:bg-accent rounded-full p-1 md:pr-4 transition-colors group">
                  <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#ff3366] flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <div className="scale-125 md:scale-150">
-                       <FaceIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
+                    <div className="scale-125 md:scale-150 text-white">
+                       <FaceIcon type={4} className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </div>
                  </div>
                  <span className="hidden md:inline text-xs font-bold text-secondary-foreground">Sign In</span>
@@ -272,6 +273,7 @@ const Layout = () => {
           isOpen={isProfileEditOpen}
           onClose={() => setIsProfileEditOpen(false)}
         />
+        <InstallPrompt />
       </div>
     </ThemeProvider>
   );
