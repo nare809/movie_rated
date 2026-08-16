@@ -180,7 +180,6 @@ const DiscoverySection = () => {
          });
          setHasMore(data.page < (data.total_pages || 1));
      }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   // Auto-load 2nd page to fill the 6-column grid

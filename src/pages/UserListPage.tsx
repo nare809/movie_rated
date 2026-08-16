@@ -13,8 +13,7 @@ const UserListPage: React.FC<UserListPageProps> = ({ mode }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { favorites, watchlist, isLoading } = useUserLibrary();
-// NO, I should update imports first.
-  
+
   const items = mode === 'favorites' ? favorites : watchlist;
   const loading = isLoading;
 

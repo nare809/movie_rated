@@ -30,19 +30,10 @@ function App() {
         <Route path="tv/:id" element={<Home />} />
         <Route path="tv/:id/:slug" element={<Home />} />
       </Route>
-      <Route path="watch/:type/:id" element={<Player />}>
-         <Route path=":slug" element={<Player />} />
-      </Route>
-      {/* React Router v6 optional param syntax is often handled by separate routes or just :slug? but v6 doesn't support ? syntax in path like v5. 
-          Actually v6 supports optional params via separate route definitions or nested keys, but easiest is to just add a separate route matching the pattern. 
-          WAIT: v6 does NOT support regex-like optional params directly in one string easily without newer features.
-          The cleanest way in v6 is often just adding the extra route.
-      */}
-      <Route path="watch/:type/:id/:slug" element={<Player />} />
       <Route path="watch/:type/:id" element={<Player />} />
-      
-      <Route path="watch/:type/:id/:season/:episode/:slug" element={<Player />} />
+      <Route path="watch/:type/:id/:slug" element={<Player />} />
       <Route path="watch/:type/:id/:season/:episode" element={<Player />} />
+      <Route path="watch/:type/:id/:season/:episode/:slug" element={<Player />} />
     </Routes>
   );
 }
